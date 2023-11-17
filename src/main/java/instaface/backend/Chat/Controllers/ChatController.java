@@ -225,6 +225,18 @@ public class ChatController {
         HuyUser.save(user);
         return new RedirectView("http://localhost:3000");
     }
+    @PostMapping("/SendIcon")
+    public String sendicon(@RequestParam("icon") String icon, HttpSession session)
+    {
+        ChatLog chatLog = new ChatLog();
+        chatLog.setTime(getDateTimeAsString());
+        chatLog.setIdsender((String) session.getAttribute("ID"));
+        chatLog.setStt((Long) session.getAttribute("STTchat"));
+        chatLog.setText(icon);
+        chatLog.setImage(true);
+        chatRes.save(chatLog);
+        return "redirect:/add";
+    }
 
 
 

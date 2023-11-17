@@ -112,6 +112,30 @@
                <button type="submit" id="sendimage" class="btn btn-primary" style="width: 188px">Upload image</button>
             </div>
           </form>
+          <form id="sendEmoj" action="/SendIcon" method="post">
+            <div class="mb-3">
+              <input type="hidden" class="form-control" id="em" value="/img/cry.jpg" name="icon" required>
+              <button type="submit"><img src="/img/cry.jpg" height="30px"></button>
+            </div>
+          </form>
+          <form id="sendEmoj2" action="/SendIcon" method="post">
+            <div class="mb-3">
+              <input type="hidden" class="form-control" id="em2" value="/img/love.jpg" name="icon" required>
+              <button type="submit"><img src="/img/love.jpg" height="30px"></button>
+            </div>
+          </form>
+          <form id="sendEmoj3" action="/SendIcon" method="post">
+            <div class="mb-3">
+              <input type="hidden" class="form-control" id="em3" value="/img/hashcry.jpg" name="icon" required>
+              <button type="submit"><img src="/img/hashcry.jpg" height="30px"></button>
+            </div>
+          </form>
+          <form id="sendEmoj4" action="/SendIcon" method="post">
+            <div class="mb-3">
+              <input type="hidden" class="form-control" id="em4" value="/img/angry.jpg" name="icon" required>
+              <button type="submit"><img src="/img/angry.jpg" height="30px"></button>
+            </div>
+          </form>
           <span th:if="${msg != null}" th:text="${msg}"></span>
 
           </div>
