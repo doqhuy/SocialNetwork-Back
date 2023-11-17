@@ -4,6 +4,7 @@ import instaface.backend.Chat.Models.ChatDefine;
 import instaface.backend.Chat.Models.ChatLog;
 import instaface.backend.Chat.Models.user;
 import instaface.backend.Chat.Respository.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import instaface.backend.Chat.Services.ChatService;
 import javax.servlet.http.HttpSession;
@@ -206,6 +207,23 @@ public class ChatController {
         // You can use various methods to generate a unique name, here's an example with timestamp
         long timestamp = System.currentTimeMillis();
         return timestamp + "_" + originalFileName;
+    }
+    @GetMapping("/changepasspage/{id}")
+    public String changepasspager(@PathVariable String id, HttpSession session)
+    {
+        session.setAttribute("ID", id);
+        return "Login/ChangePass";
+    }
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @PostMapping("/changepass")
+    public RedirectView changepassw(@RequestParam("passwrd") String passwrd, HttpSession session)
+    {
+        User user = HuyUser.findById((String) session.getAttribute("ID"));
+        user.setPassword(passwrd);
+        user.setPassword(this.bCryptPasswordEncoder.encode(passwrd));
+        HuyUser.save(user);
+        return new RedirectView("http://localhost:3000");
     }
 
 

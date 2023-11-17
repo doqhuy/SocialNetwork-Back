@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Password</title>
+    <!-- Link đến Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body class="bg-dark">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Đổi mật khẩu</h5>
+                    <form id="changePasswordForm" action="/changepass" method="post">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="password" name="passwrd" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPasswrd"
+                                   required>
+                            <!-- Thêm một phần tử div để hiển thị thông báo lỗi -->
+                            <div id="passwordMismatch" class="text-danger"></div>
+                        </div>
+                        <button type="button" onclick="validatePassword()" class="btn btn-primary">Xác nhận đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Link đến Bootstrap JS và Popper.js -->
+
+
+<!-- Thêm đoạn mã JavaScript để kiểm tra tính hợp lệ của mật khẩu -->
+<script>
+    function validatePassword() {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmPassword").value;
+        var passwordMismatch = document.getElementById("passwordMismatch");
+
+        if (password !== confirmPassword) {
+            passwordMismatch.innerHTML = "Passwords do not match.";
+        } else {
+            passwordMismatch.innerHTML = "";
+            document.getElementById("changePasswordForm").submit();
+        }
+    }
+</script>
+</body>
+
+</html>
