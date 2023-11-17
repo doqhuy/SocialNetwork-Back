@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="/ChatGroup.js"></script>
+
+    <title>chat app - InstaFace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/ChatBox.css">
+</head>
+<body>
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-lg-12">
+            <div class="card chat-app">
+                <div class="row">
+                    <div id="plist col-lg-3" class="people-list">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-search"></i></span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Tìm kiếm...">
+                    </div>
+                    <div class="container mt-4">
+                        <a th:href="@{/add}"> <button type="button" class="btn btn-primary">Chat Friends</button> </a>
+                        <a th:href="@{/createnewgroup}"> <button type="button" class="btn btn-primary" style="margin-top: 25px">Tạo nhóm chat</button> </a>
+                    </div>
+                    <div style="overflow-y: auto; height: 430px">
+                        <tr th:each="ChatGroup : ${listofgroup}" >
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                <a th:href="@{'/Chat/Groups/' + ${ChatGroup.stt}}"> <li class="clearfix" th:classappend="${ChatGroup.stt == targetGroup} ? 'clearfix active' : ''" >
+
+                                    <img th:src="${ChatGroup.groupimage}" alt="avatar">
+                                    <div class="about">
+                                        <div class="name" th:text="${ChatGroup.name}"></div>
+                                        <div class="status"> <i class="fa fa-circle offline"></i> Hello </div>
+                                    </div>
+                                </li> </a>
+                            </ul>
+                        </tr>
+                    </div>
+                </div>
+                    <div class="chat col-lg-6">
+                            <div class="chat-header clearfix">
+                            <div class="row">
+                            <div class="col-lg-6">
+                                <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                                    <img th:src="${groupImage}" alt="avatar">
+                                </a>
+                                <div class="chat-about">
+                                    <h6 class="m-b-0" th:text="${groupName}">Aiden Chavez</h6>
+                                    <small>Available</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chat-history">
+                        <div   class="chat-history">
+                            <table >
+                                <tbody>
+                                <tr th:each="ChatGroupLogs : ${listOfchats}">
+                                    <ul class="m-b-0">
+                                        <li class="clearfix">
+                                            <div class="message-data " th:classappend="${ChatGroupLogs.idsender == chatofme} ? 'message-data text-right' : ''">
+                                                <span class="message-data-time" th:text="${ChatGroupLogs.time}"></span>
+                                                <img th:src="${ChatGroupLogs.senderAvatar}">
+                                                <p th:text="${ChatGroupLogs.senderName}"></p>
+                                            </div>
+                                            <div class="message my-message" th:classappend="${ChatGroupLogs.idsender == chatofme} ? 'message other-message float-right' : ''">
+                                                <p th:if="${ChatGroupLogs.image}">
+                                                <div th:if="${ChatGroupLogs.text.endsWith('.jpg') or ChatGroupLogs.text.endsWith('.png')}">
+                                                    <img th:src="${ChatGroupLogs.text}" alt="" height="230px" />
+                                                </div>
+                                                <!-- Kiểm tra nếu là video -->
+                                                <div th:if="${ChatGroupLogs.text.endsWith('.mp4') or ChatGroupLogs.text.endsWith('.webm') or ChatGroupLogs.text.endsWith('.wmv')}">
+                                                    <video  height="250px" controls>
+                                                        <source th:src="${ChatGroupLogs.text}" th:type="${#strings.endsWith(ChatGroupLogs.text, '.mp4') ? 'video/mp4' : (#strings.endsWith(ChatGroupLogs.text, '.webm') ? 'video/webm' : 'video/x-ms-wmv')}" />
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </div>
+                                                </p>
+                                                <p th:unless="${ChatGroupLogs.image}" th:text="${ChatGroupLogs.text}">
+                                                </p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <form id="chatForm" action="#" method="POST" th:action="@{/Chat/Groups/save}" th:object="${chatGroupLogs}">
+                        <div class="input-group-append">
+                            <input type="text" class="form-control" id="name" name="text" th:field="*{text}" placeholder="Enter text" required>
+                            <button id="send" type="submit" class="btn btn-primary">Send</button>
+                        </div>
+                    </form>
+                    <br>
+                    <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+                    <form method="post" th:action="@{/group/upload}" enctype="multipart/form-data">
+                        <div class="input-group-append">
+                            <input type="file" name="image" accept="*/*" class="form-control-file" required>
+                            <button type="submit" id="sendimage" class="btn btn-primary" style="width: 188px">Upload image</button>
+                        </div>
+                    </form>
+                    <span th:if="${msg != null}" th:text="${msg}"></span>
+                </div>
+                    <div class="row col-lg-3">
+                        <ul class="form-list">
+                            <br>
+                            <br>
+                            <li th:class="${chatofme == groupAD ? 'form-trigger btn btn-outline-secondary' : 'form-trigger btn btn-outline-secondary disabled'}"
+                                th:id="btn1">Add Members</li>
+                            <div class="hidden-form" id="form1">
+                                <div style="overflow-y: auto; height: 430px">
+                                <tr th:each="User : ${listOfUsers}" >
+                                    <ul class="list-unstyled chat-list mt-2 mb-0">
+                                        <a> <form action="#" th:action="@{/addmemgroups}" method="post">
+                                            <li class="clearfix">
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" height="30px" alt="avatar">
+                                                    <div class="name" th:text="${User.lastName}"></div>
+                                                    &nbsp; &nbsp;
+                                                    <input type="hidden" name="userId" th:value="${User.id}" />
+
+                                                    <button class="btn btn-primary" type="submit">+</button>
+                                                </div>
+                                            </li>
+                                        </form>
+                                        </a>
+                                    </ul>
+                                </tr>
+                                </div>
+                            </div>
+
+                            <li class="form-trigger btn btn-outline-secondary" id="btn2"> Edit Image Group </li>
+                            <div class="hidden-form" id="form2">
+
+                                    <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+                                    <form method="post" th:action="@{/changegroupimage}" enctype="multipart/form-data">
+                                        <div>
+                                            <input type="file" name="image" accept="image/*" class="form-control-file" required>
+                                            <button type="submit" id="sendimage2" class="btn btn-primary" style="width: 188px">Upload image</button>
+                                        </div>
+                                    </form>
+
+
+                            </div>
+
+                            <li class="form-trigger btn btn-outline-secondary" id="btn3"> Edit Group Name </li>
+                            <div class="hidden-form" id="form3">
+                                <form method="post" th:action="@{/changegroupname}" >
+                                    <div>
+                                        <input type="text" name="text" placeholder="Input group name..." required>
+                                        <button type="submit" id="namechange" class="btn btn-primary" style="width: 188px">Save Group Name</button>
+                                    </div>
+                                </form>
+                            </div>
+
+
+                            <li th:class="${chatofme == groupAD ? 'form-trigger btn btn-outline-secondary' : 'form-trigger btn btn-outline-secondary disabled'}"
+                                id="btn4"> Remove Member </li>
+                            <div class="hidden-form" id="form4">
+                                <tr th:each="ChatGroupMembers : ${chatGroupMembersList}" >
+                                    <ul class="list-unstyled chat-list mt-2 mb-0">
+                                        <a> <form action="#" th:action="@{/deletememgroups}" method="post">
+                                            <li class="clearfix">
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" height="30px" alt="avatar">
+                                                    <div class="name" th:text="${ChatGroupMembers.namemember}"></div>
+                                                    &nbsp; &nbsp;
+                                                    <input type="hidden" name="targetdeId" th:value="${ChatGroupMembers.idmember}" />
+
+                                                    <button class="btn btn-primary" type="submit">x</button>
+                                                </div>
+                                            </li>
+                                        </form>
+                                        </a>
+                                    </ul>
+                                </tr>
+                            </div>
+
+                            <li th:class="${chatofme != groupAD ? 'form-trigger btn btn-outline-secondary' : 'form-trigger btn btn-outline-secondary disabled'}"
+                                id="btn5"> Get Out </li>
+                            <div class="hidden-form" id="form5">
+                                    <div>
+                                        <a th:href="@{/getout}"> <button id="getout" class="btn btn-primary" style="width: 188px">Get Out</button></a>
+                                    </div>
+
+                            </div>
+
+                            <li th:class="${chatofme == groupAD ? 'form-trigger btn btn-outline-secondary' : 'form-trigger btn btn-outline-secondary disabled'}"
+                                id="btn6"> Delete Group </li>
+                            <div class="hidden-form" id="form6">
+                                <div>
+                                    <a th:href="@{/delgroup}"> <button id="delgroup" class="btn btn-primary" style="width: 188px">Delete Group</button></a>
+                                </div>
+
+                            </div>
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- Thêm mã HTML để hiển thị thông báo nếu có -->
+<!-- Thêm một div để chứa popup alert -->
+<div id="popupAlert" class="popup-alert">
+    <div class="popup-content">
+        <span class="close" onclick="function closePopupAlert() {
+
+        }
+        closePopupAlert()">&times;</span>
+        <p id="successMessage"></p>
+    </div>
+</div>
+
+<!-- Thêm mã JavaScript -->
+<!-- Mã JavaScript -->
+<!-- Mã JavaScript -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var yourValueFromInput = document.getElementById("check").value;
+        console.log("Value from input:", yourValueFromInput);
+
+        if (yourValueFromInput === "success") {
+            alert("Thành công! Đã thêm thành viên vào nhóm.");
+        }
+        if (yourValueFromInput === "failed") {
+            alert("Thành viên này đã ở trong nhóm hoặc không thêm được.");
+        }
+        if (yourValueFromInput === "delsuccess") {
+            alert("Thành công! Đã xóa thành viên khỏi nhóm.");
+        }
+        if (yourValueFromInput === "delfailed") {
+            alert("Xóa không thành công.");
+        }
+
+        if (yourValueFromInput === "outsuccess") {
+            alert("Thành công! Đã rời khỏi nhóm.");
+        }
+        if (yourValueFromInput === "outfailed") {
+            alert("Rời nhóm thất bại.");
+        }
+
+        if (yourValueFromInput === "droupsuccess") {
+            alert("Thành công! Đã xóa nhóm!");
+        }
+        if (yourValueFromInput === "droupfailed") {
+            alert("Xóa nhóm thất bại.");
+        }
+
+
+    });
+</script>
+<input type="hidden" id="check" th:value="${successMessage}"/>
+
+
+
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>
